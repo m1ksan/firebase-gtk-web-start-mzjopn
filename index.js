@@ -4,8 +4,17 @@ import './style.css';
 import { initializeApp } from 'firebase/app';
 
 // Add the Firebase products and methods that you want to use
-import {} from 'firebase/auth';
-import {} from 'firebase/firestore';
+import {
+  getAuth,
+  EmailAuthProvider,
+  signOut,
+  onAuthStateChanged,
+} from 'firebase/auth';
+import {
+  getFirestore,
+  addDoc,
+  collection
+} from 'firebase/firestore';
 
 import * as firebaseui from 'firebaseui';
 
@@ -27,10 +36,21 @@ let db, auth;
 
 async function main() {
   // Add Firebase project configuration object here
-  const firebaseConfig = {};
 
-  // initializeApp(firebaseConfig);
+  const firebaseConfig = {
+    apiKey: 'AIzaSyD-gq6voNT7QK-BBtNW5JiYlpnRHdDlI8I',
+    authDomain: 'fir-web-codelab-9ce45.firebaseapp.com',
+    projectId: 'fir-web-codelab-9ce45',
+    storageBucket: 'fir-web-codelab-9ce45.appspot.com',
+    messagingSenderId: '854646381616',
+    appId: '1:854646381616:web:3b33704f286dcb4a29e1f5',
+  };
+  // const firebaseConfig = {};
 
+  // Initialize Firebase
+  initializeApp(firebaseConfig);
+  auth = getAuth();
+  db = getFirestore();
   // FirebaseUI config
   const uiConfig = {
     credentialHelper: firebaseui.auth.CredentialHelper.NONE,
@@ -48,5 +68,28 @@ async function main() {
   };
 
   // const ui = new firebaseui.auth.AuthUI(auth);
+  const ui = new firebaseui.auth.AuthUI(auth);
+
+  // Listen to RSVP button clicks
+  // Called when the user clicks the RSVP button
+startRsvpButton.addEventListener('click', () => {
+  if (auth.currentUser) {
+    // User is signed in; allows user to sign out
+    signOut(auth);
+  } else {
+    // No user is signed in; allows user to sign in
+    ui.start('#firebaseui-auth-container', uiConfig);
+  }
+});
+
+  // Listen to the current Auth state
+  onAuthStateChanged(auth, user => {
+    if (user) {
+      startRsvpButton.textContent = 'LOGOUT';
+    } else {
+      startRsvpButton.textContent = 'RSVP';
+    }
+  });
+
 }
 main();
